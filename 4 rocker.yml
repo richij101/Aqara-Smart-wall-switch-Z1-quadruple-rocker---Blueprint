@@ -1,0 +1,129 @@
+blueprint:
+  name: Aqara Z1 Pro Quadruple Switch (Zigbee2MQTT)
+  description: >
+    Control actions for the Aqara Z1 Pro (Quadruple Rocker) using Zigbee2MQTT.
+    
+    Ensure your switch is in 'decoupled' mode for the buttons you want to use as remote triggers.
+    
+    Supports Single, Double, and Hold actions for all 4 buttons.
+  domain: automation
+  input:
+    switch_action_sensor:
+      name: Aqara Switch Action Entity
+      description: Select the 'Action' sensor of your Aqara Z1 switch (e.g., sensor.aqara_z1_action)
+      selector:
+        entity:
+          domain: sensor
+          integration: mqtt
+
+    # --- BUTTON 1 (Top Left) ---
+    button_1_single:
+      name: Button 1 - Single Press
+      default: []
+      selector:
+        action: {}
+    button_1_double:
+      name: Button 1 - Double Press
+      default: []
+      selector:
+        action: {}
+    button_1_hold:
+      name: Button 1 - Hold
+      default: []
+      selector:
+        action: {}
+
+    # --- BUTTON 2 (Top Right) ---
+    button_2_single:
+      name: Button 2 - Single Press
+      default: []
+      selector:
+        action: {}
+    button_2_double:
+      name: Button 2 - Double Press
+      default: []
+      selector:
+        action: {}
+    button_2_hold:
+      name: Button 2 - Hold
+      default: []
+      selector:
+        action: {}
+
+    # --- BUTTON 3 (Bottom Left) ---
+    button_3_single:
+      name: Button 3 - Single Press
+      default: []
+      selector:
+        action: {}
+    button_3_double:
+      name: Button 3 - Double Press
+      default: []
+      selector:
+        action: {}
+    button_3_hold:
+      name: Button 3 - Hold
+      default: []
+      selector:
+        action: {}
+
+    # --- BUTTON 4 (Bottom Right / Wireless) ---
+    button_4_single:
+      name: Button 4 - Single Press
+      default: []
+      selector:
+        action: {}
+    button_4_double:
+      name: Button 4 - Double Press
+      default: []
+      selector:
+        action: {}
+    button_4_hold:
+      name: Button 4 - Hold
+      default: []
+      selector:
+        action: {}
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input switch_action_sensor
+    attribute: action
+
+action:
+  - variables:
+      command: "{{ trigger.to_state.state }}"
+  - choose:
+      # BUTTON 1
+      - conditions: "{{ command == '1_single' }}"
+        sequence: !input button_1_single
+      - conditions: "{{ command == '1_double' }}"
+        sequence: !input button_1_double
+      - conditions: "{{ command == '1_hold' }}"
+        sequence: !input button_1_hold
+        
+      # BUTTON 2
+      - conditions: "{{ command == '2_single' }}"
+        sequence: !input button_2_single
+      - conditions: "{{ command == '2_double' }}"
+        sequence: !input button_2_double
+      - conditions: "{{ command == '2_hold' }}"
+        sequence: !input button_2_hold
+
+      # BUTTON 3
+      - conditions: "{{ command == '3_single' }}"
+        sequence: !input button_3_single
+      - conditions: "{{ command == '3_double' }}"
+        sequence: !input button_3_double
+      - conditions: "{{ command == '3_hold' }}"
+        sequence: !input button_3_hold
+
+      # BUTTON 4
+      - conditions: "{{ command == '4_single' }}"
+        sequence: !input button_4_single
+      - conditions: "{{ command == '4_double' }}"
+        sequence: !input button_4_double
+      - conditions: "{{ command == '4_hold' }}"
+        sequence: !input button_4_hold
