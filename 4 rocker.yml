@@ -55,9 +55,17 @@ blueprint:
       default: []
       selector: { action: {} }
 
-    # --- 4TH BUTTON (If applicable) ---
+    # --- 4TH BUTTON (Wireless) ---
     single_4:
-      name: 4th Button (If present) - Single
+      name: 4th Button - Single
+      default: []
+      selector: { action: {} }
+    double_4:
+      name: 4th Button - Double
+      default: []
+      selector: { action: {} }
+    hold_4:
+      name: 4th Button - Hold
       default: []
       selector: { action: {} }
 
@@ -100,6 +108,10 @@ action:
       - conditions: "{{ cmd == 'hold_bottom' }}"
         sequence: !input hold_bottom
         
-      # 4TH BUTTON (Rare)
+      # 4TH BUTTON
       - conditions: "{{ cmd in ['single_4', '4_single'] }}"
         sequence: !input single_4
+      - conditions: "{{ cmd in ['double_4', '4_double'] }}"
+        sequence: !input double_4
+      - conditions: "{{ cmd in ['hold_4', '4_hold'] }}"
+        sequence: !input hold_4
