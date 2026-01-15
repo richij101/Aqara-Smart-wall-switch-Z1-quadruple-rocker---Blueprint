@@ -1,129 +1,116 @@
 blueprint:
-  name: Aqara Z1 Pro Quadruple Switch (Zigbee2MQTT)
+  name: Aqara Z1 Pro Quadruple (Zigbee2MQTT)
   description: >
-    Control actions for the Aqara Z1 Pro (Quadruple Rocker) using Zigbee2MQTT.
+    Automate the Aqara Z1 Pro (4-Gang). 
     
-    Ensure your switch is in 'decoupled' mode for the buttons you want to use as remote triggers.
-    
-    Supports Single, Double, and Hold actions for all 4 buttons.
+    IMPORTANT: You must go to Zigbee2MQTT > Device > Settings (Specific) and set 
+    operation_mode to 'decoupled' for the buttons you want to use as triggers.
   domain: automation
   input:
-    switch_action_sensor:
-      name: Aqara Switch Action Entity
-      description: Select the 'Action' sensor of your Aqara Z1 switch (e.g., sensor.aqara_z1_action)
+    action_sensor:
+      name: Action Sensor
+      description: Select the entity ending in "_action" (e.g., sensor.kitchen_switch_action)
       selector:
         entity:
           domain: sensor
           integration: mqtt
 
-    # --- BUTTON 1 (Top Left) ---
-    button_1_single:
-      name: Button 1 - Single Press
+    # --- BUTTON 1 (Top / Left) ---
+    press_1:
+      name: Top/Left - Single Press
       default: []
-      selector:
-        action: {}
-    button_1_double:
-      name: Button 1 - Double Press
+      selector: { action: {} }
+    double_1:
+      name: Top/Left - Double Press
       default: []
-      selector:
-        action: {}
-    button_1_hold:
-      name: Button 1 - Hold
+      selector: { action: {} }
+    hold_1:
+      name: Top/Left - Hold
       default: []
-      selector:
-        action: {}
+      selector: { action: {} }
 
-    # --- BUTTON 2 (Top Right) ---
-    button_2_single:
-      name: Button 2 - Single Press
+    # --- BUTTON 2 (Center) ---
+    press_2:
+      name: Center - Single Press
       default: []
-      selector:
-        action: {}
-    button_2_double:
-      name: Button 2 - Double Press
+      selector: { action: {} }
+    double_2:
+      name: Center - Double Press
       default: []
-      selector:
-        action: {}
-    button_2_hold:
-      name: Button 2 - Hold
+      selector: { action: {} }
+    hold_2:
+      name: Center - Hold
       default: []
-      selector:
-        action: {}
+      selector: { action: {} }
 
-    # --- BUTTON 3 (Bottom Left) ---
-    button_3_single:
-      name: Button 3 - Single Press
+    # --- BUTTON 3 (Bottom) ---
+    press_3:
+      name: Bottom - Single Press
       default: []
-      selector:
-        action: {}
-    button_3_double:
-      name: Button 3 - Double Press
+      selector: { action: {} }
+    double_3:
+      name: Bottom - Double Press
       default: []
-      selector:
-        action: {}
-    button_3_hold:
-      name: Button 3 - Hold
+      selector: { action: {} }
+    hold_3:
+      name: Bottom - Hold
       default: []
-      selector:
-        action: {}
+      selector: { action: {} }
 
-    # --- BUTTON 4 (Bottom Right / Wireless) ---
-    button_4_single:
-      name: Button 4 - Single Press
+    # --- BUTTON 4 (Wireless / 4th) ---
+    press_4:
+      name: 4th Button - Single Press
       default: []
-      selector:
-        action: {}
-    button_4_double:
-      name: Button 4 - Double Press
+      selector: { action: {} }
+    double_4:
+      name: 4th Button - Double Press
       default: []
-      selector:
-        action: {}
-    button_4_hold:
-      name: Button 4 - Hold
+      selector: { action: {} }
+    hold_4:
+      name: 4th Button - Hold
       default: []
-      selector:
-        action: {}
+      selector: { action: {} }
 
 mode: restart
 max_exceeded: silent
 
 trigger:
   - platform: state
-    entity_id: !input switch_action_sensor
+    entity_id: !input action_sensor
     attribute: action
 
 action:
   - variables:
-      command: "{{ trigger.to_state.state }}"
+      cmd: "{{ trigger.to_state.state }}"
   - choose:
-      # BUTTON 1
-      - conditions: "{{ command == '1_single' }}"
-        sequence: !input button_1_single
-      - conditions: "{{ command == '1_double' }}"
-        sequence: !input button_1_double
-      - conditions: "{{ command == '1_hold' }}"
-        sequence: !input button_1_hold
-        
-      # BUTTON 2
-      - conditions: "{{ command == '2_single' }}"
-        sequence: !input button_2_single
-      - conditions: "{{ command == '2_double' }}"
-        sequence: !input button_2_double
-      - conditions: "{{ command == '2_hold' }}"
-        sequence: !input button_2_hold
+      # TOP / BUTTON 1
+      - conditions: "{{ cmd in ['single_top', '1_single'] }}"
+        sequence: !input press_1
+      - conditions: "{{ cmd in ['double_top', '1_double'] }}"
+        sequence: !input double_1
+      - conditions: "{{ cmd in ['hold_top', '1_hold'] }}"
+        sequence: !input hold_1
 
-      # BUTTON 3
-      - conditions: "{{ command == '3_single' }}"
-        sequence: !input button_3_single
-      - conditions: "{{ command == '3_double' }}"
-        sequence: !input button_3_double
-      - conditions: "{{ command == '3_hold' }}"
-        sequence: !input button_3_hold
+      # CENTER / BUTTON 2
+      - conditions: "{{ cmd in ['single_center', '2_single'] }}"
+        sequence: !input press_2
+      - conditions: "{{ cmd in ['double_center', '2_double'] }}"
+        sequence: !input double_2
+      - conditions: "{{ cmd in ['hold_center', '2_hold'] }}"
+        sequence: !input hold_2
 
-      # BUTTON 4
-      - conditions: "{{ command == '4_single' }}"
-        sequence: !input button_4_single
-      - conditions: "{{ command == '4_double' }}"
-        sequence: !input button_4_double
-      - conditions: "{{ command == '4_hold' }}"
-        sequence: !input button_4_hold
+      # BOTTOM / BUTTON 3
+      - conditions: "{{ cmd in ['single_bottom', '3_single'] }}"
+        sequence: !input press_3
+      - conditions: "{{ cmd in ['double_bottom', '3_double'] }}"
+        sequence: !input double_3
+      - conditions: "{{ cmd in ['hold_bottom', '3_hold'] }}"
+        sequence: !input hold_3
+
+      # 4TH BUTTON (Wireless)
+      - conditions: "{{ cmd in ['single_4', '4_single'] }}"
+        sequence: !input press_4
+      - conditions: "{{ cmd in ['double_4', '4_double'] }}"
+        sequence: !input double_4
+      - conditions: "{{ cmd in ['hold_4', '4_hold'] }}"
+        sequence: !input hold_4
