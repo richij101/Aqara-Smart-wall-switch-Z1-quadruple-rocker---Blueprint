@@ -1,73 +1,63 @@
 blueprint:
-  name: Aqara Z1 Pro Quadruple (Zigbee2MQTT)
+  name: Aqara Z1 Pro (MQTT Topic Version)
   description: >
-    Automate the Aqara Z1 Pro (4-Gang). 
+    Controls Aqara Z1 Pro Switches directly via MQTT Topic (Bypasses missing sensors).
     
-    IMPORTANT: You must go to Zigbee2MQTT > Device > Settings (Specific) and set 
-    operation_mode to 'decoupled' for the buttons you want to use as triggers.
+    1. Verify your device name in Zigbee2MQTT (e.g. "Kitchen Livng room").
+    2. Enter "zigbee2mqtt/[DEVICE_NAME]" in the topic field below.
+    3. Ensure buttons are in 'decoupled' mode in Z2M settings.
   domain: automation
   input:
-    action_sensor:
-      name: Action Sensor
-      description: Select the entity ending in "_action" (e.g., sensor.kitchen_switch_action)
-      selector:
-        entity:
-          domain: sensor
-          integration: mqtt
-
-    # --- BUTTON 1 (Top / Left) ---
-    press_1:
-      name: Top/Left - Single Press
+    mqtt_topic:
+      name: MQTT Topic
+      description: The full topic path (e.g. zigbee2mqtt/Kitchen Livng room)
+      default: "zigbee2mqtt/Kitchen Livng room"
+    
+    # --- TOP BUTTON ---
+    single_top:
+      name: Top - Single Click
       default: []
       selector: { action: {} }
-    double_1:
-      name: Top/Left - Double Press
+    double_top:
+      name: Top - Double Click
       default: []
       selector: { action: {} }
-    hold_1:
-      name: Top/Left - Hold
+    hold_top:
+      name: Top - Hold
       default: []
       selector: { action: {} }
 
-    # --- BUTTON 2 (Center) ---
-    press_2:
-      name: Center - Single Press
+    # --- CENTER BUTTON ---
+    single_center:
+      name: Center - Single Click
       default: []
       selector: { action: {} }
-    double_2:
-      name: Center - Double Press
+    double_center:
+      name: Center - Double Click
       default: []
       selector: { action: {} }
-    hold_2:
+    hold_center:
       name: Center - Hold
       default: []
       selector: { action: {} }
 
-    # --- BUTTON 3 (Bottom) ---
-    press_3:
-      name: Bottom - Single Press
+    # --- BOTTOM BUTTON ---
+    single_bottom:
+      name: Bottom - Single Click
       default: []
       selector: { action: {} }
-    double_3:
-      name: Bottom - Double Press
+    double_bottom:
+      name: Bottom - Double Click
       default: []
       selector: { action: {} }
-    hold_3:
+    hold_bottom:
       name: Bottom - Hold
       default: []
       selector: { action: {} }
 
-    # --- BUTTON 4 (Wireless / 4th) ---
-    press_4:
-      name: 4th Button - Single Press
-      default: []
-      selector: { action: {} }
-    double_4:
-      name: 4th Button - Double Press
-      default: []
-      selector: { action: {} }
-    hold_4:
-      name: 4th Button - Hold
+    # --- 4TH BUTTON (If applicable) ---
+    single_4:
+      name: 4th Button (If present) - Single
       default: []
       selector: { action: {} }
 
@@ -75,42 +65,41 @@ mode: restart
 max_exceeded: silent
 
 trigger:
-  - platform: state
-    entity_id: !input action_sensor
-    attribute: action
+  - platform: mqtt
+    topic: !input mqtt_topic
+
+condition:
+  - condition: template
+    value_template: "{{ trigger.payload_json.action is defined }}"
 
 action:
   - variables:
-      cmd: "{{ trigger.to_state.state }}"
+      cmd: "{{ trigger.payload_json.action }}"
   - choose:
-      # TOP / BUTTON 1
-      - conditions: "{{ cmd in ['single_top', '1_single'] }}"
-        sequence: !input press_1
-      - conditions: "{{ cmd in ['double_top', '1_double'] }}"
-        sequence: !input double_1
-      - conditions: "{{ cmd in ['hold_top', '1_hold'] }}"
-        sequence: !input hold_1
+      # TOP MAPPINGS
+      - conditions: "{{ cmd == 'single_top' }}"
+        sequence: !input single_top
+      - conditions: "{{ cmd == 'double_top' }}"
+        sequence: !input double_top
+      - conditions: "{{ cmd == 'hold_top' }}"
+        sequence: !input hold_top
 
-      # CENTER / BUTTON 2
-      - conditions: "{{ cmd in ['single_center', '2_single'] }}"
-        sequence: !input press_2
-      - conditions: "{{ cmd in ['double_center', '2_double'] }}"
-        sequence: !input double_2
-      - conditions: "{{ cmd in ['hold_center', '2_hold'] }}"
-        sequence: !input hold_2
+      # CENTER MAPPINGS
+      - conditions: "{{ cmd == 'single_center' }}"
+        sequence: !input single_center
+      - conditions: "{{ cmd == 'double_center' }}"
+        sequence: !input double_center
+      - conditions: "{{ cmd == 'hold_center' }}"
+        sequence: !input hold_center
 
-      # BOTTOM / BUTTON 3
-      - conditions: "{{ cmd in ['single_bottom', '3_single'] }}"
-        sequence: !input press_3
-      - conditions: "{{ cmd in ['double_bottom', '3_double'] }}"
-        sequence: !input double_3
-      - conditions: "{{ cmd in ['hold_bottom', '3_hold'] }}"
-        sequence: !input hold_3
-
-      # 4TH BUTTON (Wireless)
+      # BOTTOM MAPPINGS
+      - conditions: "{{ cmd == 'single_bottom' }}"
+        sequence: !input single_bottom
+      - conditions: "{{ cmd == 'double_bottom' }}"
+        sequence: !input double_bottom
+      - conditions: "{{ cmd == 'hold_bottom' }}"
+        sequence: !input hold_bottom
+        
+      # 4TH BUTTON (Rare)
       - conditions: "{{ cmd in ['single_4', '4_single'] }}"
-        sequence: !input press_4
-      - conditions: "{{ cmd in ['double_4', '4_double'] }}"
-        sequence: !input double_4
-      - conditions: "{{ cmd in ['hold_4', '4_hold'] }}"
-        sequence: !input hold_4
+        sequence: !input single_4
